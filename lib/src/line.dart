@@ -8,7 +8,7 @@ part of mapbox_gl;
 
 class Line {
   @visibleForTesting
-  Line(this._id, this._options);
+  Line(this._id, this._options, [this._data]);
 
   /// A unique identifier for this line.
   ///
@@ -18,6 +18,10 @@ class Line {
   String get id => _id;
 
   LineOptions _options;
+
+  Map get data => _data;
+
+  Map _data;
 
   /// The line configuration options most recently applied programmatically
   /// via the map controller.

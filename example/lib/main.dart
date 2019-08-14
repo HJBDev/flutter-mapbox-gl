@@ -3,23 +3,11 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'line.dart';
-import 'animate_camera.dart';
 import 'map_ui.dart';
-import 'move_camera.dart';
 import 'page.dart';
-import 'place_symbol.dart';
-import 'place_circle.dart';
-import 'scrolling_map.dart';
 
 final List<Page> _allPages = <Page>[
-  MapUiPage(),
-  AnimateCameraPage(),
-  MoveCameraPage(),
-  PlaceSymbolPage(),
-  LinePage(),
-  PlaceCirclePage(),
-  ScrollingMapPage(),
+  MapUiPage()
 ];
 
 class MapsDemo extends StatelessWidget {

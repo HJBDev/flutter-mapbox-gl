@@ -8,7 +8,7 @@ part of mapbox_gl;
 
 class Circle  {
   @visibleForTesting
-  Circle(this._id, this._options);
+  Circle(this._id, this._options, this._data);
 
   /// A unique identifier for this circle.
   ///
@@ -17,6 +17,9 @@ class Circle  {
   String get id => _id;
 
   CircleOptions _options;
+
+  Map _data;
+  Map get data => _data;
 
   /// The circle configuration options most recently applied programmatically
   /// via the map controller.
