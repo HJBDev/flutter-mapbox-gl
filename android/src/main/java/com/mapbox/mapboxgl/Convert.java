@@ -6,8 +6,6 @@ package com.mapbox.mapboxgl;
 
 import android.graphics.Point;
 
-import android.util.Log;
-
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdate;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -15,7 +13,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.log.Logger;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.geojson.LineString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -354,9 +351,9 @@ class Convert {
     if (geometry != null) {
       sink.setGeometry(toLatLng(geometry));
     }
-    final Object zIndex = data.get("zIndex");
-    if (zIndex != null) {
-      sink.setZIndex(toInt(zIndex));
+    final Object symbolSortKey = data.get("symbolSortKey");
+    if (symbolSortKey != null) {
+      sink.setSymbolSortKey(toFloat(symbolSortKey));
     }
     final Object draggable = data.get("draggable");
     if (draggable != null) {

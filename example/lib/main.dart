@@ -11,7 +11,13 @@ final List<Page> _allPages = <Page>[
 ];
 
 class MapsDemo extends StatelessWidget {
-  void _pushPage(BuildContext context, Page page) {
+  void _pushPage(BuildContext context, Page page) async {
+    final location = Location();
+    final hasPermissions = await location.hasPermission();
+    if (!hasPermissions) {
+      await location.requestPermission();
+    }
+
     Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => Scaffold(
               appBar: AppBar(title: Text(page.title)),
@@ -26,10 +32,10 @@ class MapsDemo extends StatelessWidget {
       body: ListView.builder(
         itemCount: _allPages.length,
         itemBuilder: (_, int index) => ListTile(
-              leading: _allPages[index].leading,
-              title: Text(_allPages[index].title),
-              onTap: () => _pushPage(context, _allPages[index]),
-            ),
+          leading: _allPages[index].leading,
+          title: Text(_allPages[index].title),
+          onTap: () => _pushPage(context, _allPages[index]),
+        ),
       ),
     );
   }
