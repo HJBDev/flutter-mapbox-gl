@@ -106,7 +106,7 @@ class MapboxMapController extends ChangeNotifier {
   CameraPosition get cameraPosition => _cameraPosition;
   CameraPosition _cameraPosition;
 
-  final int _id;
+  final int _id; //ignore: unused_field
 
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     switch (call.method) {
@@ -202,20 +202,74 @@ class MapboxMapController extends ChangeNotifier {
   ///
   /// The returned [Future] completes after the change has been started on the
   /// platform side.
-  Future<void> animateCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#animate', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> animateCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#animate', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
   }
 
-  /// Changes the map camera position.
+  /// Instantaneously re-position the camera.
+  /// Note: moveCamera() quickly moves the camera, which can be visually jarring for a user. Strongly consider using the animateCamera() methods instead because it's less abrupt.
   ///
   /// The returned [Future] completes after the change has been made on the
   /// platform side.
-  Future<void> moveCamera(CameraUpdate cameraUpdate) async {
-    await _channel.invokeMethod('camera#move', <String, dynamic>{
+  /// It returns true if the camera was successfully moved and false if the movement was canceled.
+  /// Note: this currently always returns immediately with a value of null on iOS
+  Future<bool> moveCamera(CameraUpdate cameraUpdate) async {
+    return await _channel.invokeMethod('camera#move', <String, dynamic>{
       'cameraUpdate': cameraUpdate._toJson(),
     });
+  }
+
+  /// Updates user location tracking mode.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> updateMyLocationTrackingMode(
+      MyLocationTrackingMode myLocationTrackingMode) async {
+    await _channel.invokeMethod(
+        'map#updateMyLocationTrackingMode', <String, dynamic>{
+      'mode': myLocationTrackingMode.index,
+    });
+  }
+  
+  /// Updates the language of the map labels to match the device's language.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> matchMapLanguageWithDeviceDefault() async {
+    await _channel.invokeMethod('map#matchMapLanguageWithDeviceDefault');
+  }  
+  
+  /// Updates the language of the map labels to match the specified language.
+  /// Supported language strings are available here: https://github.com/mapbox/mapbox-plugins-android/blob/e29c18d25098eb023a831796ff807e30d8207c36/plugin-localization/src/main/java/com/mapbox/mapboxsdk/plugins/localization/MapLocale.java#L39-L87
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setMapLanguage(String language) async {
+    await _channel.invokeMethod('map#setMapLanguage', <String, dynamic>{
+      'language': language,
+    });
+  }
+  
+  /// Enables or disables the collection of anonymized telemetry data.
+  ///
+  /// The returned [Future] completes after the change has been made on the
+  /// platform side.
+  Future<void> setTelemetryEnabled(bool enabled) async {
+    await _channel.invokeMethod('map#setTelemetryEnabled', <String, dynamic>{
+      'enabled': enabled,
+    });
+  }
+
+  /// Retrieves whether collection of anonymized telemetry data is enabled.
+  ///
+  /// The returned [Future] completes after the query has been made on the
+  /// platform side.
+  Future<bool> getTelemetryEnabled() async {
+    return await _channel.invokeMethod('map#getTelemetryEnabled');
   }
 
   /// Adds a symbol to the map, configured using the specified custom [options].
@@ -429,10 +483,12 @@ class MapboxMapController extends ChangeNotifier {
   Future<LatLng> getCircleLatLng(Circle circle) async {
     assert(circle != null);
     assert(_circles[circle._id] == circle);
-    Map mapLatLng = await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
+    Map mapLatLng =
+        await _channel.invokeMethod('circle#getGeometry', <String, dynamic>{
       'circle': circle._id,
     });
-    LatLng circleLatLng = new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
+    LatLng circleLatLng =
+        new LatLng(mapLatLng['latitude'], mapLatLng['longitude']);
     notifyListeners();
     return circleLatLng;
   }
@@ -511,6 +567,59 @@ class MapboxMapController extends ChangeNotifier {
         },
       );
       return reply['features'];
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+
+  Future invalidateAmbientCache() async {
+    try {
+      await _channel.invokeMethod('map#invalidateAmbientCache');
+      return null;
+      } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  /// Get last my location
+  ///
+  /// Return last latlng, nullable
+  
+  Future<LatLng> requestMyLocationLatLng() async {
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod('locationComponent#getLastLocation', null);
+      double latitude = 0.0, longitude = 0.0;
+      if (reply.containsKey("latitude") && reply["latitude"] != null) {
+        latitude = double.parse(reply["latitude"].toString());
+      }
+      if (reply.containsKey("longitude") && reply["longitude"] != null) {
+        longitude = double.parse(reply["longitude"].toString());
+      }
+      return LatLng(latitude, longitude);
+    } on PlatformException catch (e) {
+      return new Future.error(e);
+    }
+  }
+
+  ///This method returns the boundaries of the region currently displayed in the map.
+  Future<LatLngBounds> getVisibleRegion() async{
+    try {
+      final Map<Object, Object> reply = await _channel.invokeMethod('map#getVisibleRegion', null);
+      double latitudeSW = 0.0, longitudeSW = 0.0, latitudeNE = 0.0, longitudeNE = 0.0;
+      if (reply.containsKey("latitudeSW") && reply["latitudeSW"] != null) {
+        latitudeSW = double.parse(reply["latitudeSW"].toString());
+      }
+      if (reply.containsKey("longitudeSW") && reply["longitudeSW"] != null) {
+        longitudeSW = double.parse(reply["longitudeSW"].toString());
+      }
+      if (reply.containsKey("latitudeNE") && reply["latitudeNE"] != null) {
+        latitudeNE = double.parse(reply["latitudeNE"].toString());
+      }
+      if (reply.containsKey("longitudeNE") && reply["longitudeNE"] != null) {
+        longitudeNE = double.parse(reply["longitudeNE"].toString());
+      }
+      return LatLngBounds(southwest: LatLng(latitudeSW, longitudeSW), northeast: LatLng(latitudeNE, longitudeNE));
     } on PlatformException catch (e) {
       return new Future.error(e);
     }

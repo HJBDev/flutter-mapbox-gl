@@ -247,10 +247,18 @@ class Convert {
     if (myLocationTrackingMode != null) {
       sink.setMyLocationTrackingMode(toInt(myLocationTrackingMode));
     }
+    final Object myLocationRenderMode = data.get("myLocationRenderMode");
+    if (myLocationRenderMode != null) {
+      sink.setMyLocationRenderMode(toInt(myLocationRenderMode));
+    }
     final Object logoViewMargins = data.get("logoViewMargins");
     if(logoViewMargins != null){
       final List logoViewMarginsData = toList(logoViewMargins);
       sink.setLogoViewMargins(toInt(logoViewMarginsData.get(0)), toInt(logoViewMarginsData.get(1)));
+    }
+    final Object compassGravity = data.get("compassViewPosition");
+    if(compassGravity != null){
+      sink.setCompassGravity(toInt(compassGravity));
     }
     final Object compassViewMargins = data.get("compassViewMargins");
     if(compassViewMargins != null){

@@ -33,7 +33,11 @@ interface MapboxMapOptionsSink {
 
   void setMyLocationTrackingMode(int myLocationTrackingMode);
 
+  void setMyLocationRenderMode(int myLocationRenderMode);
+
   void setLogoViewMargins(int x, int y);
+
+  void setCompassGravity(int gravity);
 
   void setCompassViewMargins(int x, int y);
 
